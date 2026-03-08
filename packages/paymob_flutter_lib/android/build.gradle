@@ -1,0 +1,54 @@
+group 'com.qodit.paymob_flutter_lib'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.1'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.qodit.paymob_flutter_lib'
+    compileSdkVersion 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion 21
+        multiDexEnabled true
+    }
+}
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    implementation 'morxander.editcard:EditCard:1.0.1'
+    implementation 'com.android.volley:volley:1.2.1'
+    api group:'com.fasterxml.jackson.core', name:'jackson-databind', version:'2.11.1'
+    api group:'com.fasterxml.jackson.datatype', name:'jackson-datatype-jsr310', version:'2.9.0'
+    implementation 'com.android.support:multidex:1.0.3'
+}

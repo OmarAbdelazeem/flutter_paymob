@@ -1,0 +1,8 @@
+// rootProject.name = 'paymob_flutter_lib'
+include ':paymob_flutter_lib'
+// include ':acceptsdk'
+// apply from: '../settings.gradle'
+// include ':paymob_flutter_lib'
+// include ':acceptsdk'
+// project(':paymob_flutter_lib').projectDir = file('android')
+// project(':acceptsdk').projectDir = file('android/acceptsdk')

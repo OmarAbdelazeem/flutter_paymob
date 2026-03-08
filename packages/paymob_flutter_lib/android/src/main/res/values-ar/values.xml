@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Card_Number_check">  </string>
+    <string name="Cvv_check"> </string>
+    <string name="Date_check">   </string>
+    <string name="Empty_name_check"> </string>
+    <string name="Expiration"> </string>
+    <string name="PoweredBy"></string>
+    <string name="app_id">app_id</string>
+    <string name="app_name">AcceptSDK</string>
+    <string name="card_holder_name"> </string>
+    <string name="card_info"></string>
+    <string name="card_number"> </string>
+    <string name="cvv"> </string>
+    <string name="pay_button"> </string>
+    <string name="pref_file_name">shared_pref</string>
+    <string name="processing"></string>
+    <string name="save_card"> </string>
+    <string name="wait"></string>
+</resources>
