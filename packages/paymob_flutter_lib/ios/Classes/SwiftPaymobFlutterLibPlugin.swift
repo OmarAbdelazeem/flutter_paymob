@@ -85,12 +85,13 @@ public class SwiftPaymobFlutterLibPlugin: NSObject, FlutterPlugin,AcceptSDKDeleg
             case "StartPayActivityNoToken":
                 guard let args = call.arguments as? Dictionary<String, Any>,
                       let paymentStr = args["payment"] as? String else {
-//                        result(FlutterError(code: "payment_args", message: "invalid arguments", details: call.arguments))
-                    finishWithError(errorCode: "MISSING_ARGUMENT", errorMessage: "Missing Argument == ", details: call.arguments as! String);
+                    print("[Paymob iOS] StartPayActivityNoToken: missing payment argument")
+                    finishWithError(errorCode: "MISSING_ARGUMENT", errorMessage: "Missing Argument == ", details: String(describing: call.arguments));
 
                         return
                 }
                 let paymentt = try! JSONDecoder().decode(Payment.self,from: Data(paymentStr.utf8))
+                print("[Paymob iOS] StartPayActivityNoToken: decoded payment, key length=\(paymentt.paymentKey?.count ?? 0)")
             
                 self.startPayActivityNoToken(result: result,payment: paymentt)
             case "StartPayActivityToken":
@@ -112,25 +113,30 @@ public class SwiftPaymobFlutterLibPlugin: NSObject, FlutterPlugin,AcceptSDKDeleg
                         return w.isHidden == false
              }).first?.rootViewController
 
-            try accept.presentPayVC(vC: rootViewController, paymentKey: payment.paymentKey ?? "", country: .Pakistan, saveCardDefault: payment.saveCardDefault ?? false, showSaveCard: payment.showSaveCard ?? false, showAlerts: true, language: .English)
+            let paymentKey = payment.paymentKey ?? ""
+            print("[Paymob iOS] presentPayVC: paymentKey length=\(paymentKey.count), country=Egypt, showSaveCard=\(payment.showSaveCard ?? false)")
+            try accept.presentPayVC(vC: rootViewController, paymentKey: paymentKey, country: .Egypt, saveCardDefault: payment.saveCardDefault ?? false, showSaveCard: payment.showSaveCard ?? false, showAlerts: true, language: .English)
         } catch AcceptSDKError.MissingArgumentError(let errorMessage) {
-            print(errorMessage)
+            print("[Paymob iOS] MissingArgumentError: \(errorMessage)")
         }  catch let error {
-            print(error.localizedDescription)
+            print("[Paymob iOS] presentPayVC error: \(error.localizedDescription)")
         }
       
         // result("abcabc")
     }
     public func userDidCancel() {
+        print("[Paymob iOS] userDidCancel")
         finishWithError(errorCode: "USER_CANCELED", errorMessage: "User canceled!!!", details: "");
     }
     
     public func paymentAttemptFailed(_ error: AcceptSDKError, detailedDescription: String) {
+        print("[Paymob iOS] paymentAttemptFailed: \(error.localizedDescription), details: \(detailedDescription)")
         finishWithError(errorCode: "TRANSACTION_ERROR",errorMessage:  "Reason == " + error.localizedDescription,details:  detailedDescription);
 
     }
     
     public func transactionRejected(_ payData: PayResponse) {
+        print("[Paymob iOS] transactionRejected: \(payData.dataMessage)")
         finishWithError(errorCode: "TRANSACTION_REJECTED",errorMessage:  payData.dataMessage, details: "");
 
     }
@@ -148,14 +154,17 @@ public class SwiftPaymobFlutterLibPlugin: NSObject, FlutterPlugin,AcceptSDKDeleg
     }
     
     public func userDidCancel3dSecurePayment(_ pendingPayData: PayResponse) {
+        print("[Paymob iOS] userDidCancel3dSecurePayment: \(pendingPayData.dataMessage)")
         finishWithError(errorCode: "USER_CANCELED_3D_SECURE_VERIFICATION", errorMessage: "User canceled 3-d scure verification!!", details: pendingPayData.dataMessage);
 
     }
     private func finishWithSuccess(msg: String) {
+        print("[Paymob iOS] finishWithSuccess")
         flutterResult!(msg);
     }
 
     private func finishWithError(errorCode: String, errorMessage: String, details:String) {
+        print("[Paymob iOS] finishWithError: code=\(errorCode), message=\(errorMessage), details=\(details)")
         flutterResult!(FlutterError(code: errorCode, message: errorMessage, details: nil))
     }
 }

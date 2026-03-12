@@ -182,7 +182,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         }
       }
     } on PlatformException catch (e) {
-      debugPrint('[Paymob] SDK returned PlatformException: code=${e.code}, message=${e.message}');
+      debugPrint('[Paymob] SDK PlatformException: code=${e.code}, message=${e.message}, details=${e.details}');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -211,7 +211,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     if (!mounted) return;
     setState(() => _loadingMessage = 'Checking payment status...');
-    debugPrint('[Paymob] Starting poll for merchant_order_id=$merchantOrderId');
+    debugPrint('[Paymob] NoToken success path: starting poll for merchant_order_id=$merchantOrderId');
 
     await _pollAndNavigate(
       merchantOrderId: merchantOrderId,
@@ -283,6 +283,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         } catch (_) {}
       }
     } on PlatformException catch (e) {
+      debugPrint('[Paymob] Token flow PlatformException: code=${e.code}, message=${e.message}, details=${e.details}');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -296,6 +297,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
       return;
     } catch (e) {
+      debugPrint('[Paymob] Token flow error: $e');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -307,6 +309,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     if (!mounted) return;
     setState(() => _loadingMessage = 'Checking payment status...');
+    debugPrint('[Paymob] Token success path: starting poll for merchant_order_id=$merchantOrderId');
     await _pollAndNavigate(
       merchantOrderId: merchantOrderId,
       amountCents: amountCents,
