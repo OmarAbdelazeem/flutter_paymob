@@ -6,6 +6,9 @@ class SessionRequest {
   final String currency;
   final SessionCustomer customer;
   final SessionBilling billing;
+  /// When paying with a saved card, pass the card id so the backend can
+  /// create the intention with card_tokens (Paymob Create Intention API).
+  final String? savedCardUuid;
 
   SessionRequest({
     required this.merchantOrderId,
@@ -13,6 +16,7 @@ class SessionRequest {
     required this.currency,
     required this.customer,
     required this.billing,
+    this.savedCardUuid,
   });
 
   Map<String, dynamic> toJson() => {
@@ -21,6 +25,7 @@ class SessionRequest {
         'currency': currency,
         'customer': customer.toJson(),
         'billing': billing.toJson(),
+        if (savedCardUuid != null) 'saved_card_uuid': savedCardUuid,
       };
 
   String toJsonString() => jsonEncode(toJson());

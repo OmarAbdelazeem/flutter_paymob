@@ -128,14 +128,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  http:
-    dependency: transitive
-    description:
-      name: http
-      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.13.6"
   http_parser:
     dependency: transitive
     description:
@@ -240,13 +232,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
-  paymob_flutter_lib:
-    dependency: "direct main"
-    description:
-      path: "packages/paymob_flutter_lib"
-      relative: true
-    source: path
-    version: "1.0.9"
   platform:
     dependency: transitive
     description:

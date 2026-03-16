@@ -1,16 +1,11 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:paymob_flutter_lib/models/payment.dart';
-import 'package:paymob_flutter_lib/models/payment_result.dart';
-import 'package:paymob_flutter_lib/paymob_flutter_lib.dart';
 
-import '../models/saved_card.dart';
+import '../config/api_config.dart';
 import '../models/session_request.dart';
 import '../models/session_response.dart';
 import '../services/payment_api_service.dart';
+import '../services/paymob_sdk_service.dart';
 import '../services/saved_cards_api_service.dart';
 import 'payment_failure_screen.dart';
 import 'payment_success_screen.dart';
@@ -29,7 +24,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
   final _api = PaymentApiService();
   final _cardsApi = SavedCardsApiService();
-  final _paymob = PaymobFlutterLib();
+  final _paymob = PaymobSdkService();
 
   final _merchantOrderIdController = TextEditingController();
   final _amountController = TextEditingController(text: '10000');
@@ -100,6 +95,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _errorMessage = null;
     });
 
+    final selectedCardId = widget.selectedCardId;
+
     SessionResponse? session;
     try {
       session = await _api.createPaymobSession(
@@ -115,6 +112,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             phone: _phoneController.text.trim(),
           ),
           billing: SessionBilling(),
+          savedCardUuid: selectedCardId,
         ),
       );
     } catch (e) {
@@ -128,43 +126,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
 
     if (!mounted) return;
-    final selectedCardId = widget.selectedCardId;
 
-    if (selectedCardId != null) {
-      await _payWithSavedCard(
-        session: session,
-        merchantOrderId: merchantOrderId,
-        amountCents: amountCents,
-        selectedCardId: selectedCardId,
-      );
+    final publicKey = session.effectivePublicKey(ApiConfig.paymobPublicKey);
+    if (publicKey.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _loadingMessage = null;
+        _errorMessage = 'Paymob public key not configured. Set PAYMOB_PUBLIC_KEY or have backend return public_key.';
+      });
       return;
     }
 
     setState(() => _loadingMessage = 'Opening payment...');
+    debugPrint('[Paymob] Opening SDK with clientSecret (length=${session.effectiveClientSecret.length})');
 
-    debugPrint('[Paymob] Opening Paymob SDK with payment_key (length=${session.paymentKey.length})');
-    PaymentResult? sdkResult;
+    PaymobSdkResult? sdkResult;
     try {
-      sdkResult = await _paymob.startPayActivityNoToken(
-        Payment(
-          paymentKey: session.paymentKey,
-          saveCardDefault: false,
-          showSaveCard: true,
-          themeColor: Theme.of(context).colorScheme.primary,
-          language: 'en',
-          actionbar: true,
-        ),
+      sdkResult = await _paymob.payWithPaymob(
+        publicKey: publicKey,
+        clientSecret: session.effectiveClientSecret,
+        appName: 'Flutter Paymob',
+        buttonBackgroundColor: Theme.of(context).colorScheme.primary,
+        buttonTextColor: Colors.white,
+        saveCardDefault: false,
+        showSaveCard: selectedCardId == null,
       );
-      debugPrint('[Paymob] SDK returned success: dataMessage=${sdkResult?.dataMessage}, token=${sdkResult?.token != null}, maskedPan=${sdkResult?.maskedPan != null}');
-      // Save card when user chose to save and we have token + maskedPan (plugin may send dataMessage or not)
-      final shouldSaveCard = (sdkResult?.dataMessage == 'TRANSACTION_SUCCESSFUL_CARD_SAVED' ||
-              (sdkResult?.token != null && sdkResult?.maskedPan != null)) &&
-          sdkResult?.token != null &&
-          sdkResult?.maskedPan != null;
-      if (shouldSaveCard) {
+      debugPrint('[Paymob] SDK returned: status=${sdkResult.status}, token=${sdkResult.token != null}, maskedPan=${sdkResult.maskedPan != null}');
+      if (sdkResult.isSuccess && sdkResult.token != null && sdkResult.maskedPan != null) {
         try {
           await _cardsApi.saveCard(
-            paymobToken: sdkResult!.token!,
+            paymobToken: sdkResult.token!,
             maskedPan: sdkResult.maskedPan!,
           );
           if (mounted) {
@@ -188,13 +179,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         _isLoading = false;
         _loadingMessage = null;
       });
-      // User cancelled or SDK error - show message and poll to confirm final status
-      final errorMessage = e.message ?? e.code;
       await _pollAndNavigate(
         merchantOrderId: merchantOrderId,
         amountCents: amountCents,
         currency: 'EGP',
-        sdkErrorMessage: errorMessage,
+        sdkErrorMessage: e.message ?? e.code,
       );
       return;
     } catch (e, stack) {
@@ -211,105 +200,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     if (!mounted) return;
     setState(() => _loadingMessage = 'Checking payment status...');
-    debugPrint('[Paymob] NoToken success path: starting poll for merchant_order_id=$merchantOrderId');
+    debugPrint('[Paymob] Success path: starting poll for merchant_order_id=$merchantOrderId');
 
-    await _pollAndNavigate(
-      merchantOrderId: merchantOrderId,
-      amountCents: amountCents,
-      currency: 'EGP',
-      sdkResult: sdkResult,
-    );
-  }
-
-  Future<void> _payWithSavedCard({
-    required SessionResponse session,
-    required String merchantOrderId,
-    required int amountCents,
-    required String selectedCardId,
-  }) async {
-    if (!mounted) return;
-    setState(() => _loadingMessage = 'Getting card details...');
-
-    CardDetailsForPayment? cardDetails;
-    try {
-      cardDetails = await _cardsApi.getCardDetails(selectedCardId);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _loadingMessage = null;
-        _errorMessage = 'Failed to load card: $e';
-      });
-      return;
-    }
-
-    if (!mounted) return;
-    setState(() => _loadingMessage = 'Opening payment...');
-
-    final customer = Customer(
-      firstName: _firstNameController.text.trim(),
-      lastName: _lastNameController.text.trim(),
-      email: _emailController.text.trim(),
-      phoneNumber: _phoneController.text.trim(),
-      apartment: 'NA',
-      floor: 'NA',
-      building: 'NA',
-      city: 'Cairo',
-      state: 'Cairo',
-      country: 'EG',
-      postalCode: '00000',
-    );
-
-    PaymentResult? sdkResult;
-    try {
-      final resultStr = await _paymob.startPayActivityToken(
-        Payment(
-          paymentKey: session.paymentKey,
-          token: cardDetails.paymobToken,
-          maskedPanNumber: cardDetails.maskedPan,
-          customer: customer,
-          saveCardDefault: false,
-          showSaveCard: false,
-          themeColor: Theme.of(context).colorScheme.primary,
-          language: 'en',
-          actionbar: true,
-        ),
-      );
-      if (resultStr != null && resultStr.isNotEmpty) {
-        try {
-          sdkResult = PaymentResult.fromJson(
-            jsonDecode(resultStr) as Map<String, dynamic>,
-          );
-        } catch (_) {}
-      }
-    } on PlatformException catch (e) {
-      debugPrint('[Paymob] Token flow PlatformException: code=${e.code}, message=${e.message}, details=${e.details}');
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _loadingMessage = null;
-      });
-      await _pollAndNavigate(
-        merchantOrderId: merchantOrderId,
-        amountCents: amountCents,
-        currency: 'EGP',
-        sdkErrorMessage: e.message ?? e.code,
-      );
-      return;
-    } catch (e) {
-      debugPrint('[Paymob] Token flow error: $e');
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _loadingMessage = null;
-        _errorMessage = 'Payment SDK error: $e';
-      });
-      return;
-    }
-
-    if (!mounted) return;
-    setState(() => _loadingMessage = 'Checking payment status...');
-    debugPrint('[Paymob] Token success path: starting poll for merchant_order_id=$merchantOrderId');
     await _pollAndNavigate(
       merchantOrderId: merchantOrderId,
       amountCents: amountCents,
@@ -322,12 +214,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     required String merchantOrderId,
     required int amountCents,
     required String currency,
-    PaymentResult? sdkResult,
+    PaymobSdkResult? sdkResult,
     String? sdkErrorMessage,
   }) async {
     const pollInterval = Duration(seconds: 2);
     const maxAttempts = 30;
-    debugPrint('[Paymob] _pollAndNavigate: sdkResult=${sdkResult?.dataMessage}, sdkErrorMessage=$sdkErrorMessage');
+    debugPrint('[Paymob] _pollAndNavigate: sdkResult=${sdkResult?.status}, sdkErrorMessage=$sdkErrorMessage');
 
     for (var i = 0; i < maxAttempts; i++) {
       if (!mounted) return;
@@ -373,14 +265,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       await Future<void>.delayed(pollInterval);
     }
 
-    debugPrint('[Paymob] Poll ended after $maxAttempts attempts. successFromSdk=${sdkResult?.dataMessage == "TRANSACTION_SUCCESSFUL"}');
+    debugPrint('[Paymob] Poll ended after $maxAttempts attempts. successFromSdk=${sdkResult?.isSuccess}');
     if (!mounted) return;
     setState(() {
       _isLoading = false;
       _loadingMessage = null;
     });
 
-    final successFromSdk = sdkResult?.dataMessage == 'TRANSACTION_SUCCESSFUL';
+    final successFromSdk = sdkResult?.isSuccess ?? false;
     if (successFromSdk) {
       debugPrint('[Paymob] Navigating to success (from SDK result)');
       Navigator.of(context).pushReplacement(

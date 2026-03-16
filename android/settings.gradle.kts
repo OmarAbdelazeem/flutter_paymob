@@ -13,6 +13,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven { url = java.io.File(rootProject.projectDir, "libs").toURI() }
     }
 }
 

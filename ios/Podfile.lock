@@ -1,34 +1,21 @@
 PODS:
-  - AcceptCardSDK (5.6.0)
   - Flutter (1.0.0)
-  - paymob_flutter_lib (0.0.1):
-    - AcceptCardSDK
-    - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - paymob_flutter_lib (from `.symlinks/plugins/paymob_flutter_lib/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-
-SPEC REPOS:
-  trunk:
-    - AcceptCardSDK
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  paymob_flutter_lib:
-    :path: ".symlinks/plugins/paymob_flutter_lib/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
-  AcceptCardSDK: e58ae71e6d4a817043da508706164411921ce638
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  paymob_flutter_lib: e32a03e5ec831d1a881a711f625f3ea6a22115bb
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
 
 PODFILE CHECKSUM: 3b699761a5cb9432aca9a3b37488e7daba5f31a7

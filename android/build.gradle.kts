@@ -3,6 +3,7 @@ allprojects {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
+        maven { url = rootProject.file("libs").toURI() }
     }
 }
 

@@ -16,6 +16,8 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		C5F8456F709B2B3546F03274 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E4A8F8B78EBC521A7C8BA8 /* Pods_RunnerTests.framework */; };
+		D0057B392F6835D800818E72 /* PaymobSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0057B382F6835D800818E72 /* PaymobSDK.xcframework */; };
+		D0057B3A2F6835D800818E72 /* PaymobSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D0057B382F6835D800818E72 /* PaymobSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				D0057B3A2F6835D800818E72 /* PaymobSDK.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,6 +68,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AED98E72C464EDBAF11C5F99 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
+		D0057B382F6835D800818E72 /* PaymobSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PaymobSDK.xcframework; path = "../../../../Downloads/PaymobSDK 1.3.0/PaymobSDK.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0057B392F6835D800818E72 /* PaymobSDK.xcframework in Frameworks */,
 				0FE1AD1CB67C35AEAB7A1ADF /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -152,13 +157,13 @@
 				AED98E72C464EDBAF11C5F99 /* Pods-RunnerTests.release.xcconfig */,
 				63E30AD3BFC96F69FF5FD54D /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
 		FCFEA398591E124DB2976A37 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D0057B382F6835D800818E72 /* PaymobSDK.xcframework */,
 				412CEF665921DD31536DCB36 /* Pods_Runner.framework */,
 				05E4A8F8B78EBC521A7C8BA8 /* Pods_RunnerTests.framework */,
 			);

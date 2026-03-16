@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../config/api_config.dart';
@@ -22,8 +24,11 @@ class PaymentApiService {
     );
   }
 
-  /// Creates a Paymob session and returns payment_key for the SDK.
+  /// Creates a Paymob session (backend should use Create Intention API) and
+  /// returns client_secret and optional public_key for the official Paymob SDK.
   Future<SessionResponse> createPaymobSession(SessionRequest request) async {
+   
+  print(" jsonEncode(request.toJson()) is ${jsonEncode(request.toJson())}");
     final response = await _dio.post<Map<String, dynamic>>(
       '/payments/paymob/session',
       data: request.toJson(),
