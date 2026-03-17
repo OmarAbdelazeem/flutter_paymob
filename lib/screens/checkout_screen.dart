@@ -152,6 +152,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         showSaveCard: selectedCardId == null,
       );
       debugPrint('[Paymob] SDK returned: status=${sdkResult.status}, token=${sdkResult.token != null}, maskedPan=${sdkResult.maskedPan != null}');
+      // Debug: print full details map to identify actual key names returned by Paymob SDK.
+      debugPrint('[Paymob] SDK details keys: ${sdkResult.details?.keys.toList()}');
+      debugPrint('[Paymob] SDK details raw: ${sdkResult.details}');
       if (sdkResult.isSuccess && sdkResult.token != null && sdkResult.maskedPan != null) {
         try {
           await _cardsApi.saveCard(

@@ -88,6 +88,8 @@ import PaymobSDK
   // MARK: - PaymobSDKDelegate
 
   public func transactionAccepted(transactionDetails: [String: Any]) {
+    print("[Paymob iOS] transactionAccepted details keys: \(Array(transactionDetails.keys))")
+    print("[Paymob iOS] transactionAccepted details: \(transactionDetails)")
     SDKResult?(["status": "Successfull", "details": transactionDetails])
     SDKResult = nil
   }

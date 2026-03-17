@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../config/api_config.dart';
 import '../models/payment_status_response.dart';
 import '../models/session_request.dart';
 import '../models/session_response.dart';
+import 'user_service.dart';
 
 class PaymentApiService {
   late final Dio _dio;
@@ -27,11 +29,17 @@ class PaymentApiService {
   /// Creates a Paymob session (backend should use Create Intention API) and
   /// returns client_secret and optional public_key for the official Paymob SDK.
   Future<SessionResponse> createPaymobSession(SessionRequest request) async {
-   
-  print(" jsonEncode(request.toJson()) is ${jsonEncode(request.toJson())}");
+    if (kDebugMode) {
+      debugPrint('[Paymob] createPaymobSession payload=${jsonEncode(request.toJson())}');
+    }
     final response = await _dio.post<Map<String, dynamic>>(
       '/payments/paymob/session',
       data: request.toJson(),
+      options: Options(
+        headers: {
+          'X-User-Id': UserService.instance.userId,
+        },
+      ),
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {

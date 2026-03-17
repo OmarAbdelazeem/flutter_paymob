@@ -1,6 +1,7 @@
 package com.example.flutter_paymob
 
 import android.graphics.Color
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -74,6 +75,8 @@ class MainActivity : FlutterActivity(), PaymobSdkListener {
     }
 
     override fun onSuccess(payResponse: HashMap<String, String?>) {
+        Log.d("Paymob", "onSuccess payResponse keys=${payResponse.keys}")
+        Log.d("Paymob", "onSuccess payResponse=$payResponse")
         val details = payResponse.mapValues { (_, v) -> v }.filterValues { it != null }
         SDKResult?.success(mapOf("status" to "Successfull", "details" to details))
         SDKResult = null

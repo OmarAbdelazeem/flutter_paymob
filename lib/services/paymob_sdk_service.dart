@@ -69,10 +69,13 @@ class PaymobSdkService {
       return PaymobSdkResult(status: raw);
     }
     if (raw is Map) {
-      final map = Map<String, dynamic>.from(raw);
+      final map = Map<String, dynamic>.from(Map<dynamic, dynamic>.from(raw));
       final status = map['status'] as String? ?? 'Rejected';
-      final details = map['details'] as Map<String, dynamic>?;
-      return PaymobSdkResult(status: status, details: details != null ? Map<String, dynamic>.from(details) : null);
+      final detailsRaw = map['details'];
+      final details = detailsRaw is Map
+          ? Map<String, dynamic>.from(Map<dynamic, dynamic>.from(detailsRaw))
+          : null;
+      return PaymobSdkResult(status: status, details: details);
     }
     return const PaymobSdkResult(status: 'Rejected');
   }
